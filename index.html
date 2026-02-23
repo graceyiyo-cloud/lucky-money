@@ -2,176 +2,45 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>紅包紀錄簿 - 軒霆 & 品妍</title>
-    
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
-    
     <style>
-        :root {
-            --sidebar-bg: #EAE7DC;
-            --main-bg: #F9F7F2;
-            --text-color: #4A4A4A;
-            --accent-color: #8E8D8A;
-            --card-white: #FFFFFF;
-            --border-gold: #D8C3A5;
-        }
-
-        body {
-            margin: 0;
-            font-family: 'Noto Sans TC', sans-serif;
-            background-color: var(--main-bg);
-            color: var(--text-color);
-            display: flex;
-        }
-
-        /* 響應式側邊欄 */
-        .sidebar {
-            width: 220px;
-            height: 100vh;
-            background-color: var(--sidebar-bg);
-            padding: 30px 20px;
-            position: fixed;
-            border-right: 1px solid var(--border-gold);
-            overflow-y: auto;
-        }
-
-        .sidebar h2 {
-            font-size: 1.2rem;
-            color: var(--accent-color);
-            margin-bottom: 30px;
-            letter-spacing: 2px;
-        }
-
-        .nav-item {
-            display: block;
-            padding: 12px 15px;
-            color: var(--text-color);
-            text-decoration: none;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            transition: 0.3s;
-            font-weight: 300;
-        }
-
-        .nav-item:hover {
-            background-color: var(--border-gold);
-            color: white;
-        }
-
-        /* 主內容區 */
-        .content {
-            margin-left: 260px;
-            padding: 40px;
-            width: 100%;
-            max-width: 900px;
-        }
-
-        .year-section {
-            margin-bottom: 50px;
-        }
-
-        .card {
-            background: var(--card-white);
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-            border-top: 5px solid var(--border-gold);
-        }
-
-        .header-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-        }
-
-        .total-amount {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--accent-color);
-        }
-
-        .list-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px dashed #eee;
-        }
-
-        /* 手機版適配 */
+        :root { --sidebar-bg: #EAE7DC; --main-bg: #F9F7F2; --text-color: #4A4A4A; --accent-color: #8E8D8A; --border-gold: #D8C3A5; }
+        body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background-color: var(--main-bg); color: var(--text-color); display: flex; }
+        .sidebar { width: 220px; height: 100vh; background-color: var(--sidebar-bg); padding: 30px 20px; position: fixed; border-right: 1px solid var(--border-gold); overflow-y: auto; z-index: 100; }
+        .nav-item { display: block; padding: 12px 15px; color: var(--text-color); text-decoration: none; margin-bottom: 8px; border-radius: 8px; transition: 0.3s; font-weight: 300; font-size: 0.9em; }
+        .nav-item:hover { background-color: var(--border-gold); color: white; }
+        .content { margin-left: 260px; padding: 40px; width: 100%; max-width: 900px; }
+        .year-section { margin-bottom: 50px; scroll-margin-top: 20px; }
+        .card { background: white; border-radius: 15px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border-top: 5px solid var(--border-gold); }
+        .header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; }
+        .total-amount { font-size: 1.4rem; font-weight: 700; color: var(--accent-color); }
+        .list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 0.95em; }
+        .import-btn { background: #8E8D8A; color: white; border: none; padding: 15px 25px; border-radius: 30px; cursor: pointer; margin-bottom: 30px; font-weight: bold; }
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-                padding: 15px;
-                box-sizing: border-box;
-                display: flex;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
+            .sidebar { width: 100%; height: auto; position: sticky; top: 0; padding: 10px; display: flex; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--border-gold); }
             .sidebar h2 { display: none; }
-            .nav-item { display: inline-block; margin-right: 10px; padding: 8px 15px; }
-            .content { margin-left: 0; padding: 20px; box-sizing: border-box; }
-            .list-grid { grid-template-columns: 1fr 1fr; }
+            .content { margin-left: 0; padding: 20px; }
         }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
-    <h2>紅包目錄</h2>
-    <a href="#XT115" class="nav-item">軒霆 115年</a>
-    <a href="#PY115" class="nav-item">品妍 115年</a>
-    </div>
+<div class="sidebar" id="sidebar">
+    <h2 style="font-size:1.2rem; color:var(--accent-color);">目錄載入中...</h2>
+</div>
 
 <div class="content">
-    <div id="XT115" class="year-section">
-        <div class="card">
-            <div class="header-row">
-                <h3 style="margin:0">軒霆 115年過年</h3>
-                <div class="total-amount" id="total-XT115">NT$ 0</div>
-            </div>
-            <div class="list-grid">
-                <div class="item"><span>爸</span><span class="amount">1200</span></div>
-                <div class="item"><span>媽</span><span class="amount">1200</span></div>
-                <div class="item"><span>育弘爸</span><span class="amount">2600</span></div>
-                <div class="item"><span>育弘媽</span><span class="amount">2600</span></div>
-                <div class="item"><span>育弘舅媽</span><span class="amount">2000</span></div>
-                <div class="item"><span>大叔叔</span><span class="amount">2000</span></div>
-            </div>
-        </div>
-    </div>
-
-    <div id="PY115" class="year-section">
-        <div class="card">
-            <div class="header-row">
-                <h3 style="margin:0">品妍 115年過年</h3>
-                <div class="total-amount" id="total-PY115">NT$ 0</div>
-            </div>
-            <div class="list-grid">
-                <div class="item"><span>爸</span><span class="amount">1200</span></div>
-                <div class="item"><span>媽</span><span class="amount">1200</span></div>
-                <div class="item"><span>育弘爸</span><span class="amount">2600</span></div>
-                <div class="item"><span>育弘媽</span><span class="amount">2600</span></div>
-            </div>
-        </div>
-    </div>
+    <button class="import-btn" id="importBtn">🚀 點我：同步所有歷史紀錄到 Firebase</button>
+    <div id="main-display">正在從資料庫同步數據...</div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js";
+    import { getFirestore, collection, getDocs, doc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAqSxxH5LhsKSV2NPDzQFOSHn_rQNv588k",
@@ -185,23 +54,89 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
+    const db = getFirestore(app);
 
-    // 自動加總邏輯
-    function calculate() {
-        const sections = document.querySelectorAll('.year-section');
-        sections.forEach(section => {
-            let sum = 0;
-            const amounts = section.querySelectorAll('.amount');
-            amounts.forEach(a => sum += parseInt(a.innerText));
+    // --- 自動讀取並顯示資料 ---
+    async function loadData() {
+        const sidebar = document.getElementById('sidebar');
+        const display = document.getElementById('main-display');
+        sidebar.innerHTML = '<h2 style="font-size:1.2rem; color:var(--accent-color);">紅包目錄</h2>';
+        display.innerHTML = '';
+
+        const q = query(collection(db, "lucky_money"), orderBy("year", "desc"), orderBy("owner", "asc"));
+        const snapshot = await getDocs(q);
+
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const id = doc.id;
             
-            const display = section.querySelector('.total-amount');
-            display.innerText = `NT$ ${sum.toLocaleString()}`;
+            // 側邊欄
+            const nav = document.createElement('a');
+            nav.href = `#${id}`;
+            nav.className = 'nav-item';
+            nav.innerText = `${data.owner} ${data.year}年`;
+            sidebar.appendChild(nav);
+
+            // 內容卡片
+            let total = 0;
+            let items = data.records.map(r => {
+                total += r.amount;
+                return `<div class="item"><span>${r.name}</span><span>$${r.amount}</span></div>`;
+            }).join('');
+
+            const card = document.createElement('div');
+            card.id = id;
+            card.className = 'year-section';
+            card.innerHTML = `
+                <div class="card">
+                    <div class="header-row">
+                        <h3 style="margin:0">${data.owner} ${data.year}年</h3>
+                        <div class="total-amount">NT$ ${total.toLocaleString()}</div>
+                    </div>
+                    <div class="list-grid">${items}</div>
+                </div>`;
+            display.appendChild(card);
         });
     }
 
-    calculate();
-</script>
+    // --- 一鍵匯入所有歷史資料 ---
+    document.getElementById('importBtn').addEventListener('click', async () => {
+        const btn = document.getElementById('importBtn');
+        btn.innerText = "寫入中，請稍候...";
+        btn.disabled = true;
 
+        const allRecords = [
+            // 115年
+            { id: "115_XT", owner: "軒霆", year: 115, records: [{name:"爸",amount:1200},{name:"媽",amount:1200},{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"育弘舅媽",amount:2000},{name:"大叔叔",amount:2000},{name:"小叔叔",amount:1000},{name:"大姑姑",amount:1000},{name:"二姑姑",amount:1000},{name:"小姑姑",amount:600},{name:"冠霖",amount:600},{name:"琬薏媽",amount:2000},{name:"大姨婆",amount:2000},{name:"小姨婆",amount:200},{name:"舅公",amount:600},{name:"大姨",amount:1200},{name:"二姨",amount:600},{name:"舅舅",amount:600},{name:"苓苓",amount:200},{name:"如琴",amount:200},{name:"阿義伯公",amount:2000}] },
+            { id: "115_PY", owner: "品妍", year: 115, records: [{name:"爸",amount:1200},{name:"媽",amount:1200},{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"育弘舅媽",amount:2000},{name:"大叔叔",amount:2000},{name:"小叔叔",amount:1000},{name:"大姑姑",amount:800},{name:"二姑姑",amount:800},{name:"小姑姑",amount:600},{name:"冠霖",amount:600},{name:"琬薏媽",amount:2000},{name:"大姨婆",amount:2000},{name:"小姨婆",amount:200},{name:"舅公",amount:600},{name:"大姨",amount:1200},{name:"二姨",amount:600},{name:"舅舅",amount:600},{name:"苓苓",amount:200},{name:"如琴",amount:200},{name:"阿義伯公",amount:2000}] },
+            // 114年
+            { id: "114_XT", owner: "軒霆", year: 114, records: [{name:"爸",amount:1200},{name:"媽",amount:1200},{name:"阿公",amount:2600},{name:"奶奶",amount:2600},{name:"大叔",amount:2000},{name:"小叔",amount:600},{name:"舅公",amount:2000},{name:"大姑姑",amount:600},{name:"二姑姑",amount:600},{name:"三姑姑",amount:600},{name:"表叔",amount:600},{name:"姨婆祖",amount:1000},{name:"阿嬤",amount:2000},{name:"大姨婆",amount:2000},{name:"小姨婆",amount:200},{name:"大姨",amount:1600},{name:"二姨",amount:600},{name:"舅舅",amount:600},{name:"家錢舅舅",amount:200},{name:"寧聆阿姨",amount:200},{name:"舅公",amount:1200},{name:"如琴",amount:600}] },
+            { id: "114_PY", owner: "品妍", year: 114, records: [{name:"爸",amount:1200},{name:"媽",amount:1200},{name:"阿公",amount:2600},{name:"奶奶",amount:2600},{name:"大叔",amount:2000},{name:"小叔",amount:600},{name:"舅公",amount:2000},{name:"大姑姑",amount:600},{name:"二姑姑",amount:600},{name:"三姑姑",amount:600},{name:"表叔",amount:600},{name:"姨婆祖",amount:1000},{name:"阿嬤",amount:2000},{name:"大姨婆",amount:2000},{name:"小姨婆",amount:200},{name:"大姨",amount:1600},{name:"二姨",amount:600},{name:"舅舅",amount:600},{name:"家錢舅舅",amount:200},{name:"寧聆阿姨",amount:200},{name:"舅公",amount:1200},{name:"如琴",amount:600}] },
+            // 113年
+            { id: "113_XT", owner: "軒霆", year: 113, records: [{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"育賢",amount:1600},{name:"哲緯",amount:1000},{name:"叔公祖",amount:2000},{name:"宗翰",amount:600},{name:"泱嬅",amount:1200},{name:"大姨",amount:2000},{name:"琬薏媽",amount:2000},{name:"阿義北公",amount:600}] },
+            { id: "113_PY", owner: "品妍", year: 113, records: [{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"育賢",amount:1600},{name:"哲緯",amount:1000},{name:"叔公祖",amount:2000},{name:"宗翰",amount:600},{name:"泱嬅",amount:1200},{name:"大姨",amount:2000},{name:"琬薏媽",amount:2000},{name:"阿義北公",amount:600}] },
+            // 112年
+            { id: "112_XT", owner: "軒霆", year: 112, records: [{name:"琬薏大姨",amount:2000},{name:"大表姐",amount:1200},{name:"二表姐",amount:600},{name:"琬薏",amount:600},{name:"琬薏媽",amount:2000},{name:"表哥",amount:600},{name:"姨丈",amount:200},{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"大弟",amount:1200},{name:"二弟",amount:600},{name:"小弟",amount:1200},{name:"育弘",amount:600},{name:"詩涵",amount:1000},{name:"詩萍",amount:1000},{name:"佩綾",amount:600},{name:"冠霖",amount:600},{name:"舅媽",amount:2000}] },
+            { id: "112_PY", owner: "品妍", year: 112, records: [{name:"琬薏大姨",amount:2000},{name:"大表姐",amount:1200},{name:"二表姐",amount:600},{name:"琬薏",amount:600},{name:"琬薏媽",amount:2000},{name:"表哥",amount:600},{name:"姨丈",amount:200},{name:"育弘爸",amount:2600},{name:"育弘媽",amount:2600},{name:"大弟",amount:1200},{name:"二弟",amount:600},{name:"小弟",amount:1200},{name:"育弘",amount:600},{name:"詩涵",amount:1000},{name:"詩萍",amount:1000},{name:"佩綾",amount:600},{name:"冠霖",amount:600},{name:"舅媽",amount:2000}] },
+            // 110年
+            { id: "110_XT", owner: "軒霆", year: 110, records: [{name:"育弘爸媽",amount:2600},{name:"宗翰",amount:600},{name:"大表姐",amount:1200},{name:"二表姐",amount:1000},{name:"外婆",amount:2000},{name:"宗翰朋友",amount:200},{name:"大姨",amount:2000},{name:"裝潢叔叔",amount:1200},{name:"育弘",amount:1200},{name:"琬薏",amount:1200}] },
+            { id: "110_PY", owner: "品妍", year: 110, records: [{name:"育弘爸媽",amount:2600},{name:"宗翰",amount:600},{name:"大表姐",amount:1200},{name:"二表姐",amount:1000},{name:"外婆",amount:2000},{name:"宗翰朋友",amount:200},{name:"大姨",amount:2000},{name:"裝潢叔叔",amount:1200},{name:"育弘",amount:1200},{name:"琬薏",amount:1200}] },
+            // 109年
+            { id: "109_XT", owner: "軒霆", year: 109, records: [{name:"爸爸",amount:1200},{name:"媽媽",amount:1200},{name:"育弘爸",amount:3600},{name:"育弘媽",amount:3600},{name:"大弟",amount:2000},{name:"小弟",amount:1000},{name:"舅媽",amount:2000},{name:"詩涵",amount:600},{name:"詩萍",amount:600},{name:"珮綾",amount:600},{name:"冠霖",amount:600},{name:"薏媽",amount:3600},{name:"大姨",amount:1600},{name:"大表姐",amount:1600},{name:"表哥",amount:600},{name:"二表姐",amount:600},{name:"表妹",amount:100},{name:"舅舅",amount:1000},{name:"裝潢叔叔",amount:1200}] }
+        ];
+
+        for (const data of allRecords) {
+            await setDoc(doc(db, "lucky_money", data.id), {
+                owner: data.owner,
+                year: data.year,
+                records: data.records
+            });
+        }
+        alert("✨ 同步成功！網頁將自動重整。");
+        location.reload();
+    });
+
+    loadData();
+</script>
 </body>
 </html>
