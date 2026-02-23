@@ -40,27 +40,31 @@
         .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: var(--gold-gradient); border-radius: 20px 20px 0 0; }
         .header-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1px solid #F0E6D2; padding-bottom: 15px; }
         
-        /* 左右分欄佈局 */
         .family-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-top: 20px; align-items: stretch; }
         .column-box { background: #FCFAFB; border-radius: 15px; padding: 15px; border: 1px solid #F5F0E6; display: flex; flex-direction: column; transition: background 0.2s; }
         .column-header { font-size: 0.85rem; font-weight: bold; color: #8D6E63; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed var(--border-gold); padding-bottom: 8px; flex-shrink: 0; }
         .column-sum { color: var(--accent-color); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; }
         
-        /* 撐開感應區塊 */
         .list-grid-half { display: flex; flex-direction: column; gap: 10px; min-height: 250px; flex-grow: 1; padding-bottom: 50px; }
         
-        /* 項目樣式 */
+        /* 項目與編輯樣式 */
         .item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 10px; border: 1px solid #F5F0E6; position: relative; cursor: grab; transition: all 0.2s; }
         .item:hover { border-color: var(--border-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .sortable-ghost { opacity: 0.3; background: #FFF9F0; border: 1px dashed var(--border-gold); }
         
-        .editable-name { cursor: pointer; color: #555; order: 1; }
-        .amount-display { color: var(--accent-color); font-weight: 600; font-family: 'JetBrains Mono', monospace; order: 3; cursor: pointer; border-bottom: 1px dashed var(--border-gold); }
+        .editable-name, .amount-display { cursor: pointer; border-bottom: 1px dashed var(--border-gold); }
+        .editable-name { color: #555; order: 1; }
+        .amount-display { color: var(--accent-color); font-weight: 600; font-family: 'JetBrains Mono', monospace; order: 3; }
         .item::after { content: ""; flex: 1; border-bottom: 1px dotted var(--border-gold); margin: 0 12px; order: 2; opacity: 0.4; }
+        
+        /* 原地編輯輸入框 */
+        .edit-input { border: 1px solid var(--accent-color); border-radius: 4px; padding: 2px 5px; font-family: inherit; font-size: inherit; color: var(--text-color); outline: none; background: #FFF; width: 80px; }
+        .edit-input.name-input { width: 100px; order: 1; }
+        .edit-input.amount-input { order: 3; text-align: right; }
+
         .del-btn { position: absolute; top: -8px; right: -8px; background: var(--accent-color); color: white; border: 2px solid white; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; cursor: pointer; display: none; z-index: 10; }
         .item:hover .del-btn { display: block; }
 
-        /* 統計與按鈕 */
         .stats-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         .stats-card { background: linear-gradient(135deg, #FFFDFB 0%, #F5F0E6 100%); padding: 25px; border-radius: 15px; text-align: center; border: 1px solid var(--border-gold); }
         .grand-total { font-size: 2.2rem; font-weight: 800; font-family: 'JetBrains Mono'; color: var(--accent-color); }
@@ -79,7 +83,6 @@
             .sidebar h2 { display: none; }
             .content { margin-left: 0; padding: 20px; }
             .family-columns { grid-template-columns: 1fr; }
-            .list-grid-half { min-height: 150px; }
             .stats-container { grid-template-columns: 1fr; }
         }
     </style>
@@ -144,8 +147,6 @@
             const data = docSnap.data(), id = docSnap.id;
             if(!stats[data.year]) stats[data.year] = {};
             let yTotal = data.records.reduce((s,r)=>s+r.amount,0);
-            
-            // 分欄金額累計
             let leftSum = data.records.filter(r => r.side !== 'right').reduce((s,r) => s + r.amount, 0);
             let rightSum = data.records.filter(r => r.side === 'right').reduce((s,r) => s + r.amount, 0);
 
@@ -158,7 +159,6 @@
             navWrapper.appendChild(nav); navWrapper.appendChild(navDelBtn); sidebar.appendChild(navWrapper);
 
             const card = document.createElement('div'); card.className='year-section'; card.id=id;
-            
             card.innerHTML = `
                 <div class="card">
                     <div class="header-row">
@@ -166,22 +166,16 @@
                         <div class="total-amount">NT$ ${yTotal.toLocaleString()}</div>
                     </div>
                     <div class="family-columns">
-                        <div class="column-box" id="box-left-${id}">
-                            <div class="column-header">
-                                <span>🏠 爸爸親戚 (左)</span>
-                                <span class="column-sum">$${leftSum.toLocaleString()}</span>
-                            </div>
+                        <div class="column-box">
+                            <div class="column-header"><span>🏠 爸爸親戚 (左)</span><span class="column-sum">$${leftSum.toLocaleString()}</span></div>
                             <div class="list-grid-half" data-side="left" data-id="${id}"></div>
                         </div>
-                        <div class="column-box" id="box-right-${id}">
-                            <div class="column-header">
-                                <span>🌸 媽媽親戚 (右)</span>
-                                <span class="column-sum">$${rightSum.toLocaleString()}</span>
-                            </div>
+                        <div class="column-box">
+                            <div class="column-header"><span>🌸 媽媽親戚 (右)</span><span class="column-sum">$${rightSum.toLocaleString()}</span></div>
                             <div class="list-grid-half" data-side="right" data-id="${id}"></div>
                         </div>
                     </div>
-                    <button class="add-person-btn" style="width:100%; margin-top:20px; padding:12px; border:2px dashed var(--border-gold); background:rgba(224,192,151,0.05); color:var(--text-color); border-radius:10px; cursor:pointer; font-weight:bold;">＋ 新增人員</button>
+                    <button class="add-person-btn">＋ 新增人員</button>
                 </div>`;
 
             const leftGrid = card.querySelector('[data-side="left"]');
@@ -191,18 +185,63 @@
                 const item = document.createElement('div');
                 item.className = 'item';
                 item.dataset.originalIndex = idx;
-                item.innerHTML = `<span class="editable-name">${r.name}</span><span class="amount-display">$${r.amount.toLocaleString()}</span><button class="del-btn">✕</button>`;
+                item.innerHTML = `
+                    <span class="editable-name">${r.name}</span>
+                    <span class="amount-display">$${r.amount.toLocaleString()}</span>
+                    <button class="del-btn">✕</button>
+                `;
                 
-                item.querySelector('.editable-name').onclick = () => {
-                    const n = prompt("修改姓名：", r.name);
-                    if(n) { data.records[idx].name = n; updateDoc(doc(db,"lucky_money",id), {records:data.records}).then(()=>loadData()); }
+                // 原地編輯姓名
+                const nameSpan = item.querySelector('.editable-name');
+                nameSpan.onclick = () => {
+                    const input = document.createElement('input');
+                    input.className = 'edit-input name-input';
+                    input.value = r.name;
+                    nameSpan.replaceWith(input);
+                    input.focus();
+                    input.select();
+                    
+                    const save = async () => {
+                        const val = input.value.trim();
+                        if (val && val !== r.name) {
+                            data.records[idx].name = val;
+                            await updateDoc(doc(db,"lucky_money",id), {records:data.records});
+                            loadData();
+                        } else {
+                            input.replaceWith(nameSpan);
+                        }
+                    };
+                    input.onblur = save;
+                    input.onkeydown = (e) => { if(e.key === 'Enter') save(); };
                 };
-                item.querySelector('.amount-display').onclick = () => {
-                    const a = prompt(`修改 ${r.name} 的金額：`, r.amount);
-                    if(a !== null) { data.records[idx].amount = parseInt(a)||0; updateDoc(doc(db,"lucky_money",id), {records:data.records}).then(()=>loadData()); }
+
+                // 原地編輯金額
+                const amountSpan = item.querySelector('.amount-display');
+                amountSpan.onclick = () => {
+                    const input = document.createElement('input');
+                    input.className = 'edit-input amount-input';
+                    input.type = 'number';
+                    input.value = r.amount;
+                    amountSpan.replaceWith(input);
+                    input.focus();
+                    input.select();
+                    
+                    const save = async () => {
+                        const val = parseInt(input.value) || 0;
+                        if (val !== r.amount) {
+                            data.records[idx].amount = val;
+                            await updateDoc(doc(db,"lucky_money",id), {records:data.records});
+                            loadData();
+                        } else {
+                            input.replaceWith(amountSpan);
+                        }
+                    };
+                    input.onblur = save;
+                    input.onkeydown = (e) => { if(e.key === 'Enter') save(); };
                 };
+
                 item.querySelector('.del-btn').onclick = () => {
-                    if(confirm(`刪除 ${r.name}?`)) { data.records.splice(idx,1); updateDoc(doc(db,"lucky_money",id), {records:data.records}).then(()=>loadData()); }
+                    if(confirm(`確定刪除 ${r.name}?`)) { data.records.splice(idx,1); updateDoc(doc(db,"lucky_money",id), {records:data.records}).then(()=>loadData()); }
                 };
 
                 if (r.side === 'right') rightGrid.appendChild(item);
@@ -210,20 +249,14 @@
             });
 
             const sortOptions = {
-                group: `shared-${id}`,
-                animation: 150,
-                fallbackOnBody: true,
-                swapThreshold: 0.65,
-                ghostClass: 'sortable-ghost',
+                group: `shared-${id}`, animation: 150, fallbackOnBody: true, swapThreshold: 0.65, ghostClass: 'sortable-ghost',
                 onEnd: async () => {
                     const newRecords = [];
                     card.querySelectorAll('[data-side="left"] .item').forEach(el => {
-                        const original = data.records[el.dataset.originalIndex];
-                        newRecords.push({...original, side: 'left'});
+                        newRecords.push({...data.records[el.dataset.originalIndex], side: 'left'});
                     });
                     card.querySelectorAll('[data-side="right"] .item').forEach(el => {
-                        const original = data.records[el.dataset.originalIndex];
-                        newRecords.push({...original, side: 'right'});
+                        newRecords.push({...data.records[el.dataset.originalIndex], side: 'right'});
                     });
                     await updateDoc(doc(db, "lucky_money", id), { records: newRecords });
                     loadData();
@@ -232,9 +265,10 @@
             new Sortable(leftGrid, sortOptions);
             new Sortable(rightGrid, sortOptions);
 
-            card.querySelector('.add-person-btn').onclick = () => {
-                const n = prompt("姓名："); const a = prompt("金額：", 0);
-                if(n) { data.records.push({name:n, amount:parseInt(a)||0, side:'left'}); updateDoc(doc(db,"lucky_money",id), {records:data.records}).then(()=>loadData()); }
+            card.querySelector('.add-person-btn').onclick = async () => {
+                data.records.push({name:'新成員', amount:0, side:'left'});
+                await updateDoc(doc(db,"lucky_money",id), {records:data.records});
+                loadData();
             };
 
             display.appendChild(card);
