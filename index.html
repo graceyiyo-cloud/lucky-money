@@ -51,12 +51,13 @@
         .list-grid-half { display: flex; flex-direction: column; gap: 10px; min-height: 250px; flex-grow: 1; padding-bottom: 50px; }
         
         /* 項目樣式 */
-        .item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 10px; border: 1px solid #F5F0E6; position: relative; cursor: grab; transition: all 0.2s; }
+        .item { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px 18px; border-radius: 10px; border: 1px solid #F5F0E6; position: relative; transition: all 0.2s; }
         .item:hover { border-color: var(--border-gold); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .sortable-ghost { opacity: 0.3; background: #FFF9F0; border: 1px dashed var(--border-gold); }
         
-        /* 序號樣式 */
-        .item-index { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #BBB; min-width: 25px; order: 0; }
+        /* 序號樣式 - 設為拖曳把手 */
+        .item-index { font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: #AAA; min-width: 30px; order: 0; cursor: grab; padding: 5px 0; }
+        .item-index:active { cursor: grabbing; color: var(--accent-color); }
         
         .editable-name, .amount-display { cursor: pointer; border-bottom: 1px dashed var(--border-gold); }
         .editable-name { color: #555; order: 1; }
@@ -103,6 +104,7 @@
             .header-row h3 { font-size: 1.2rem; }
             .card { padding: 20px 15px; }
             .list-grid-half { min-height: auto; }
+            .item-index { min-width: 35px; font-size: 0.9rem; } /* 手機版序號稍微大一點好點選 */
         }
     </style>
 </head>
@@ -287,7 +289,12 @@
             });
 
             const sortOptions = {
-                group: `shared-${id}`, animation: 150, fallbackOnBody: true, swapThreshold: 0.65, ghostClass: 'sortable-ghost',
+                group: `shared-${id}`, 
+                animation: 150, 
+                fallbackOnBody: true, 
+                swapThreshold: 0.65, 
+                ghostClass: 'sortable-ghost',
+                handle: '.item-index', // 關鍵：只有點擊 .item-index 才能拖曳
                 onEnd: async () => {
                     const newRecords = [];
                     card.querySelectorAll('[data-side="left"] .item').forEach(el => {
