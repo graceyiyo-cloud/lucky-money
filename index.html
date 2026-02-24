@@ -22,7 +22,7 @@
         body { margin: 0; font-family: 'Noto Sans TC', sans-serif; background-color: var(--main-bg); color: var(--text-color); display: flex; line-height: 1.6; }
         
         /* 側邊欄 */
-        .sidebar { width: 240px; height: 100vh; background-color: var(--sidebar-bg); padding: 40px 20px; position: fixed; border-right: 1px solid var(--border-gold); overflow-y: auto; box-sizing: border-box; box-shadow: 5px 0 15px rgba(224, 192, 151, 0.1); }
+        .sidebar { width: 240px; height: 100vh; background-color: var(--sidebar-bg); padding: 40px 20px; position: fixed; border-right: 1px solid var(--border-gold); overflow-y: auto; box-sizing: border-box; box-shadow: 5px 0 15px rgba(224, 192, 151, 0.1); transition: transform 0.3s ease; z-index: 2000; }
         .sidebar h2 { font-size: 1.1rem; color: var(--text-color); margin-bottom: 25px; letter-spacing: 2px; text-align: center; border-bottom: 2px solid var(--border-gold); padding-bottom: 15px; font-weight: 700; }
         .nav-wrapper { position: relative; margin-bottom: 12px; }
         .nav-item { display: block; padding: 12px 18px; color: var(--text-color); text-decoration: none; border-radius: 12px; transition: 0.3s; font-weight: 400; font-size: 0.9em; background: var(--nav-bg); border: 1px solid rgba(224, 192, 151, 0.3); padding-right: 40px; }
@@ -31,9 +31,12 @@
         .nav-wrapper:hover .nav-del-btn { display: block; }
         .nav-del-btn:hover { color: var(--red); transform: translateY(-50%) scale(1.2); }
         
+        /* 手機版選單按鈕 */
+        .menu-toggle { display: none; position: fixed; top: 15px; left: 15px; z-index: 2100; background: var(--accent-color); color: white; border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 20px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
         /* 內容區 */
-        .content { margin-left: 240px; padding: 50px; width: 100%; max-width: 1100px; box-sizing: border-box; }
-        .year-section { margin-bottom: 60px; scroll-margin-top: 30px; }
+        .content { margin-left: 240px; padding: 50px; width: 100%; max-width: 1100px; box-sizing: border-box; transition: margin-left 0.3s ease; }
+        .year-section { margin-bottom: 60px; scroll-margin-top: 80px; }
         
         /* 卡片與分欄 */
         .card { background: var(--card-white); border-radius: 20px; padding: 30px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03); border: 1px solid rgba(224, 192, 151, 0.2); position: relative; }
@@ -86,17 +89,27 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 2000; backdrop-filter: blur(4px); }
         .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 35px; border-radius: 25px; width: 90%; max-width: 320px; border: 1px solid var(--border-gold); }
         
+        /* 遮罩層 (手機版側邊欄開啟時) */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 1500; }
+
         @media (max-width: 768px) {
-            body { flex-direction: column; }
-            .sidebar { width: 100%; height: auto; position: sticky; top: 0; padding: 10px; display: flex; overflow-x: auto; z-index: 1000; border-right: none; border-bottom: 1px solid var(--border-gold); }
-            .sidebar h2 { display: none; }
-            .content { margin-left: 0; padding: 20px; }
-            .family-columns { grid-template-columns: 1fr; }
+            .menu-toggle { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .content { margin-left: 0; padding: 80px 15px 20px 15px; }
+            .family-columns { grid-template-columns: 1fr; gap: 15px; }
             .stats-container { grid-template-columns: 1fr; }
+            .header-row h3 { font-size: 1.2rem; }
+            .card { padding: 20px 15px; }
+            .list-grid-half { min-height: auto; }
         }
     </style>
 </head>
 <body>
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <div class="sidebar" id="sidebar"></div>
 <div class="content" id="main-content"><div id="main-display"></div></div>
@@ -128,6 +141,19 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
+    // 手機版選單邏輯
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+    const toggleSidebar = () => {
+        sidebar.classList.toggle('active');
+        sidebarOverlay.classList.toggle('active');
+    };
+
+    menuToggle.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+
     window.deleteYearData = async (id, name) => {
         if(confirm(`🚨 確定要刪除「${name}」的整份紅包紀錄嗎？`)) {
             await deleteDoc(doc(db, "lucky_money", id));
@@ -136,18 +162,19 @@
     };
 
     async function loadData() {
-        const sidebar = document.getElementById('sidebar');
+        const sidebarEl = document.getElementById('sidebar');
         const display = document.getElementById('main-display');
         const q = query(collection(db, "lucky_money"), orderBy("year", "desc"), orderBy("owner", "asc"));
         const snapshot = await getDocs(q);
         
         let stats = {}, totals = {"軒霆":0, "品妍":0};
-        sidebar.innerHTML = "<h2>🧧 年度目錄</h2>";
+        sidebarEl.innerHTML = "<h2>🧧 年度目錄</h2>";
         
         const sWrapper = document.createElement('div'); sWrapper.className='nav-wrapper';
         const sNav = document.createElement('a'); sNav.className='nav-item'; sNav.href='#stats-page'; sNav.innerText='📈 全年度統計'; sNav.style.background='white'; sNav.style.borderColor='var(--accent-color)'; sNav.style.color='var(--accent-color)'; sNav.style.fontWeight='bold';
+        sNav.onclick = () => { if(window.innerWidth <= 768) toggleSidebar(); };
         sWrapper.appendChild(sNav);
-        sidebar.appendChild(sWrapper);
+        sidebarEl.appendChild(sWrapper);
 
         display.innerHTML = "";
         const statsSection = document.createElement('div'); statsSection.id="stats-page"; statsSection.className="year-section";
@@ -163,9 +190,10 @@
 
             const navWrapper = document.createElement('div'); navWrapper.className='nav-wrapper';
             const nav = document.createElement('a'); nav.className='nav-item'; nav.href=`#${id}`; nav.innerText=`${data.owner} ${data.year}年`;
+            nav.onclick = () => { if(window.innerWidth <= 768) toggleSidebar(); };
             const navDelBtn = document.createElement('button'); navDelBtn.className='nav-del-btn'; navDelBtn.innerHTML='✕';
             navDelBtn.onclick = (e) => { e.preventDefault(); window.deleteYearData(id, `${data.owner} ${data.year}年`); };
-            navWrapper.appendChild(nav); navWrapper.appendChild(navDelBtn); sidebar.appendChild(navWrapper);
+            navWrapper.appendChild(nav); navWrapper.appendChild(navDelBtn); sidebarEl.appendChild(navWrapper);
 
             const card = document.createElement('div'); card.className='year-section'; card.id=id;
             card.innerHTML = `
@@ -190,7 +218,6 @@
             const leftGrid = card.querySelector('[data-side="left"]');
             const rightGrid = card.querySelector('[data-side="right"]');
 
-            // 渲染資料，加入序號計算
             let leftIdx = 1, rightIdx = 1;
             data.records.forEach((r, idx) => {
                 const item = document.createElement('div');
@@ -293,7 +320,9 @@
                     <div class="stats-card"><h4>軒霆 總計</h4><div class="grand-total">$${totals["軒霆"].toLocaleString()}</div></div>
                     <div class="stats-card"><h4>品妍 總計</h4><div class="grand-total">$${totals["品妍"].toLocaleString()}</div></div>
                 </div>
-                <table class="stats-table"><thead><tr><th>年度</th><th>軒霆</th><th>品妍</th></tr></thead><tbody>${rows}</tbody></table>
+                <div style="overflow-x: auto;">
+                    <table class="stats-table"><thead><tr><th>年度</th><th>軒霆</th><th>品妍</th></tr></thead><tbody>${rows}</tbody></table>
+                </div>
             </div>`;
         display.prepend(statsSection);
     }
